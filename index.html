@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gesture Particles - Quantum FX Edition</title>
+    <title>JARVIS Dual-Hand Hologram Engine</title>
     <style>
         :root {
-            --neon-blue: #00f0ff;
-            --neon-pink: #ff007f;
-            --neon-gold: #ffaa00;
-            --glass-bg: rgba(10, 15, 25, 0.65);
-            --glass-border: rgba(0, 240, 255, 0.25);
+            --cyan: #00f3ff;
+            --magenta: #ff0055;
+            --gold: #ffaa00;
+            --green: #00ff66;
+            --panel: rgba(8, 14, 26, 0.75);
+            --border: rgba(0, 243, 255, 0.28);
         }
 
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #030308;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-            user-select: none;
+            background-color: #020206;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             color: #fff;
+            user-select: none;
         }
 
         canvas {
@@ -28,10 +29,10 @@
             height: 100vh;
         }
 
-        /* Glassmorphism HUD */
+        /* Sci-Fi HUD Interface */
         #hud {
             position: absolute;
-            top: 24px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -42,85 +43,85 @@
             pointer-events: none;
         }
 
-        .title-badge {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            padding: 8px 24px;
-            border-radius: 999px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 240, 255, 0.2);
-            text-align: center;
+        .title-box {
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            padding: 8px 30px;
+            border-radius: 40px;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.25), inset 0 0 15px rgba(0, 243, 255, 0.1);
         }
 
-        .title-badge h1 {
+        .title-box h1 {
             margin: 0;
             font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            background: linear-gradient(90deg, #00f0ff, #fff, #ff00ea);
+            font-weight: 800;
+            background: linear-gradient(90deg, #00f3ff, #fff, #ff0055);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .gesture-pills {
+        .model-selector {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            max-width: 90vw;
+            gap: 10px;
             pointer-events: auto;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .pill {
-            background: var(--glass-bg);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 6px 14px;
+        .hud-btn {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.85);
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            color: rgba(255, 255, 255, 0.75);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            letter-spacing: 1px;
             cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
         }
 
-        .pill:hover {
-            border-color: var(--neon-blue);
+        .hud-btn:hover {
+            border-color: var(--cyan);
             color: #fff;
             transform: translateY(-2px);
         }
 
-        .pill.active {
-            background: rgba(0, 240, 255, 0.15);
-            border-color: var(--neon-blue);
-            color: #00f0ff;
-            box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
-            transform: scale(1.05);
+        .hud-btn.active {
+            background: rgba(0, 243, 255, 0.2);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 18px rgba(0, 243, 255, 0.45);
         }
 
-        /* Video PiP Container */
-        #video-container {
+        /* Dual Hand Tracking PiP Box */
+        #vision-box {
             position: absolute;
             bottom: 24px;
             left: 24px;
-            width: 150px;
-            height: 112px;
+            width: 170px;
+            height: 125px;
             border-radius: 14px;
             overflow: hidden;
-            border: 1.5px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1.5px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             background: #000;
             z-index: 10;
             transform: scaleX(-1);
             transition: border-color 0.3s;
         }
 
-        #video-container.tracking {
-            border-color: #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        #vision-box.dual {
+            border-color: var(--green);
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4);
+        }
+
+        #vision-box.single {
+            border-color: var(--cyan);
         }
 
         video {
@@ -129,26 +130,26 @@
             object-fit: cover;
         }
 
-        /* Telemetry & Stats */
+        /* Hologram Telemetry Data */
         #telemetry {
             position: absolute;
             bottom: 24px;
             right: 24px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-family: monospace;
-            color: #8fa0b5;
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: #9cb3c9;
             z-index: 10;
-            line-height: 1.6;
+            line-height: 1.8;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        #telemetry span {
-            color: #00f0ff;
-            font-weight: bold;
+        #telemetry b {
+            color: var(--cyan);
         }
 
         #loading {
@@ -156,38 +157,33 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: var(--neon-blue);
-            font-size: 1.1rem;
-            font-weight: 500;
+            background: rgba(4, 8, 16, 0.9);
+            border: 1px solid var(--cyan);
+            padding: 24px 40px;
+            border-radius: 20px;
+            color: var(--cyan);
+            font-weight: 700;
             letter-spacing: 2px;
-            text-transform: uppercase;
-            z-index: 30;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(3, 3, 8, 0.85);
-            padding: 18px 32px;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
+            z-index: 50;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.3);
         }
 
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(0, 240, 255, 0.2);
-            border-top-color: var(--neon-blue);
+        .radar {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 12px;
+            border: 3px solid rgba(0, 243, 255, 0.2);
+            border-top-color: var(--cyan);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
-    <!-- Core Libraries -->
+    <!-- Three.js + PostProcessing Unreal Bloom -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Three.js Postprocessing Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
@@ -195,232 +191,275 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
-    <!-- MediaPipe Hands -->
+    <!-- MediaPipe Multi-Hand Tracker -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 </head>
 <body>
 
     <div id="hud">
-        <div class="title-badge">
-            <h1>Quantum Particle Engine</h1>
+        <div class="title-box">
+            <h1>Dual-Hand Hologram Matrix</h1>
         </div>
-        <div class="gesture-pills">
-            <div class="pill active" data-index="0">🖐 Open: Nebula [1]</div>
-            <div class="pill" data-index="1">🤏 Pinch: Heart [2]</div>
-            <div class="pill" data-index="2">✊ Fist: Butterfly [3]</div>
-            <div class="pill" data-index="3">✌️ Peace: Hyper Star [4]</div>
-            <div class="pill" data-index="4">☝️ Point: DNA Helix [5]</div>
-            <div class="pill" data-index="5">🤘 Horns: Black Hole [6]</div>
+        <div class="model-selector">
+            <button class="hud-btn active" data-index="0">🪼 Deep-Sea Jellyfish [1]</button>
+            <button class="hud-btn" data-index="1">🤖 Cyber Human Head [2]</button>
+            <button class="hud-btn" data-index="2">🏎️ Mechanical Car [3]</button>
+            <button class="hud-btn" data-index="3">🌌 Singularity Vortex [4]</button>
         </div>
     </div>
 
     <div id="loading">
-        <div class="spinner"></div>
-        <span>Initializing Neural Vision...</span>
+        <div class="radar"></div>
+        <div>INITIALIZING QUANTUM SENSORS...</div>
     </div>
 
-    <div id="video-container">
+    <div id="vision-box">
         <video class="input_video" playsinline></video>
     </div>
 
     <div id="telemetry">
-        Particles: <span>60,000</span> (GPU Accelerated)<br>
-        Gesture: <span id="tel-gesture">Nebula</span><br>
-        FPS: <span id="tel-fps">60</span> | Tracking: <span id="tel-track">Offline</span>
+        [SYSTEM STATUS]<br>
+        HANDS DETECTED: <b id="stat-hands">0 (SEARCHING)</b><br>
+        ACTIVE MODEL: <b id="stat-model">Jellyfish</b><br>
+        SCALE / ZOOM: <b id="stat-zoom">1.00x</b><br>
+        EXPLODE RATIO: <b id="stat-explode">0%</b><br>
+        ENGINE: <b>75,000 Particles @ GPU 60+ FPS</b>
     </div>
 
 <script>
     // -------------------------------------------------------------
-    // 1. Audio Synthesis Feedback (Zero External Dependencies)
+    // 1. Audio FX Synthesizer (Sci-Fi Cyber Tones)
     // -------------------------------------------------------------
     const audioCtx = window.AudioContext ? new (window.AudioContext || window.webkitAudioContext)() : null;
-    function playGestureTone(freq = 440) {
+    function playSciFiChime(freq = 520, slide = 880) {
         if (!audioCtx || audioCtx.state === 'suspended') return;
         try {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(freq * 1.6, audioCtx.currentTime + 0.16);
+            osc.frequency.exponentialRampToValueAtTime(slide, audioCtx.currentTime + 0.18);
             gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.23);
+            osc.stop(audioCtx.currentTime + 0.22);
         } catch(e) {}
     }
     window.addEventListener('click', () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 
     // -------------------------------------------------------------
-    // 2. Three.js Scene & Cinematic Post-Processing Setup
+    // 2. Three.js Scene Setup + Post-Processing Unreal Bloom
     // -------------------------------------------------------------
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x030308, 0.015);
+    scene.fog = new THREE.FogExp2(0x020206, 0.012);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 48);
+    camera.position.set(0, 0, 52);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.3;
     document.body.appendChild(renderer.domElement);
 
-    // Unreal Bloom Pass
     const renderScene = new THREE.RenderPass(scene, camera);
     const bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        1.6,  // Bloom Strength
-        0.45, // Radius
-        0.15  // Threshold
+        1.7,  // Strength
+        0.5,  // Radius
+        0.1   // Threshold
     );
     const composer = new THREE.EffectComposer(renderer);
     composer.addPass(renderScene);
     composer.addPass(bloomPass);
 
     // -------------------------------------------------------------
-    // 3. Mathematical Shape Synthesizer (60,000 Particles)
+    // 3. Mathematical Shape Synthesis (75,000 Particles)
     // -------------------------------------------------------------
-    const particleCount = 60000;
+    const particleCount = 75000;
     const geometry = new THREE.BufferGeometry();
 
-    const shapeNebula = new Float32Array(particleCount * 3);
-    const shapeHeart = new Float32Array(particleCount * 3);
-    const shapeButterfly = new Float32Array(particleCount * 3);
-    const shapeStar = new Float32Array(particleCount * 3);
-    const shapeHelix = new Float32Array(particleCount * 3);
-    const shapeBlackHole = new Float32Array(particleCount * 3);
-    const aSeed = new Float32Array(particleCount);
+    const shapeJelly = new Float32Array(particleCount * 3);
+    const shapeHuman = new Float32Array(particleCount * 3);
+    const shapeCar   = new Float32Array(particleCount * 3);
+    const shapeVortex= new Float32Array(particleCount * 3);
+    const aExplodeDir= new Float32Array(particleCount * 3);
+    const aSeed      = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
         aSeed[i] = Math.random();
 
-        // 1. Quantum Nebula (Spherical Spiral with Volumetric Filament Core)
-        const phi = Math.acos(1 - 2 * (i + 0.5) / particleCount);
-        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-        const radius = 26 * Math.cbrt(Math.random()) * (0.8 + 0.3 * Math.sin(theta * 3.0));
-        shapeNebula[i3]     = radius * Math.sin(phi) * Math.cos(theta);
-        shapeNebula[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        shapeNebula[i3 + 2] = radius * Math.cos(phi);
-
-        // 2. Volumetric 3D Anatomical Heart (Taubin Solid Surface)
-        const tHeart = Math.PI * (Math.random() * 2 - 1);
-        const uHeart = Math.PI * (Math.random() * 2 - 1);
-        const hx = 16 * Math.pow(Math.sin(tHeart), 3) * Math.cos(uHeart);
-        const hy = (13 * Math.cos(tHeart) - 5 * Math.cos(2*tHeart) - 2 * Math.cos(3*tHeart) - Math.cos(4*tHeart));
-        const hz = 16 * Math.pow(Math.sin(tHeart), 3) * Math.sin(uHeart) * 0.65;
-        shapeHeart[i3]     = hx * 0.85;
-        shapeHeart[i3 + 1] = hy * 0.85 + 2.0;
-        shapeHeart[i3 + 2] = hz * 0.85;
-
-        // 3. 3D Monarch Butterfly (Curved Wing Parametric Surface)
-        const tb = Math.random() * 12 * Math.PI;
-        const rB = Math.exp(Math.cos(tb)) - 2 * Math.cos(4 * tb) + Math.pow(Math.sin(tb / 12), 5);
-        const spread = Math.random() * 0.25 + 0.85;
-        const bx = rB * Math.sin(tb) * 7.5 * spread;
-        const by = rB * Math.cos(tb) * 7.5 * spread - 3.0;
-        const bz = Math.pow(Math.abs(bx) / 10, 1.4) * (Math.random() * 2 - 1) * 3.5;
-        shapeButterfly[i3]     = bx;
-        shapeButterfly[i3 + 1] = by;
-        shapeButterfly[i3 + 2] = bz;
-
-        // 4. Hyper-Stellated Starhedron (Radiant Core + 8 Coronal Rays)
-        const uStar = Math.random() * Math.PI * 2;
-        const vStar = Math.acos(Math.random() * 2 - 1);
-        const spikes = Math.pow(Math.abs(Math.sin(4 * uStar) * Math.sin(4 * vStar)), 3.5) * 25.0;
-        const coreR = 7.0 + Math.random() * 3.5;
-        const starDist = coreR + spikes;
-        shapeStar[i3]     = starDist * Math.sin(vStar) * Math.cos(uStar);
-        shapeStar[i3 + 1] = starDist * Math.sin(vStar) * Math.sin(uStar);
-        shapeStar[i3 + 2] = starDist * Math.cos(vStar);
-
-        // 5. Bio-Double Helix (DNA Strands + Cross-Bridge Rungs)
-        const progress = (i / particleCount);
-        const hAngle = progress * 8.0 * Math.PI * 2.0;
-        const hHeight = (progress - 0.5) * 55.0;
-        const helixR = 8.5;
-        let hlx, hly = hHeight, hlz;
-        if (i % 6 === 0) {
-            const bridgeT = (Math.random() * 2.0 - 1.0);
-            hlx = Math.cos(hAngle) * (helixR * bridgeT);
-            hlz = Math.sin(hAngle) * (helixR * bridgeT);
+        // -----------------------------------------
+        // MODEL 1: Bioluminescent Deep-Sea Jellyfish
+        // -----------------------------------------
+        if (i < particleCount * 0.38) {
+            // Pulsing Dome Cap (Bell)
+            const phi = Math.random() * Math.PI * 0.5; // Hemisphere
+            const theta = Math.random() * Math.PI * 2.0;
+            const r = 14.0 * Math.sin(phi);
+            const edgeRipple = Math.cos(theta * 12.0) * 0.8 * Math.pow(Math.sin(phi), 3.0);
+            shapeJelly[i3]     = (r + edgeRipple) * Math.cos(theta);
+            shapeJelly[i3 + 1] = 12.0 * Math.cos(phi) + 2.0;
+            shapeJelly[i3 + 2] = (r + edgeRipple) * Math.sin(theta);
         } else {
-            const strandOffset = (i % 2 === 0) ? 0 : Math.PI;
-            const jitter = (Math.random() - 0.5) * 1.2;
-            hlx = Math.cos(hAngle + strandOffset) * (helixR + jitter);
-            hlz = Math.sin(hAngle + strandOffset) * (helixR + jitter);
-        }
-        shapeHelix[i3]     = hlx;
-        shapeHelix[i3 + 1] = hly;
-        shapeHelix[i3 + 2] = hlz;
+            // 16 Swirling Deep Tentacles
+            const tentacleId = i % 16;
+            const tAngle = (tentacleId / 16) * Math.PI * 2.0;
+            const progress = ((i - particleCount * 0.38) / (particleCount * 0.62));
+            const yDist = -progress * 38.0 + 2.0;
+            const wave = Math.sin(progress * 14.0 + tentacleId) * (progress * 5.0 + 0.8);
+            const tRadius = 10.0 * (1.0 - progress * 0.5) + wave;
 
-        // 6. Cosmic Black Hole (Accretion Disk, Core & Polar Relativistic Jets)
-        let bhx, bhy, bhz;
-        if (i < particleCount * 0.16) {
-            const jetH = (Math.random() * 2 - 1) * 36.0;
-            const jetR = (Math.abs(jetH) * 0.08 + 0.5) * Math.random();
-            const jetAngle = Math.random() * Math.PI * 2;
-            bhx = Math.cos(jetAngle) * jetR;
-            bhz = Math.sin(jetAngle) * jetR;
-            bhy = jetH;
-        } else if (i < particleCount * 0.38) {
-            const rSph = 4.5 * Math.cbrt(Math.random());
-            const spTheta = Math.random() * Math.PI * 2;
-            const spPhi = Math.acos(Math.random() * 2 - 1);
-            bhx = rSph * Math.sin(spPhi) * Math.cos(spTheta);
-            bhy = rSph * Math.sin(spPhi) * Math.sin(spTheta);
-            bhz = rSph * Math.cos(spPhi);
-        } else {
-            const ringR = 7.5 + Math.pow(Math.random(), 1.7) * 26.0;
-            const ringTh = Math.random() * Math.PI * 2;
-            bhx = ringR * Math.cos(ringTh);
-            bhz = ringR * Math.sin(ringTh);
-            bhy = (Math.random() - 0.5) * (1.8 / (ringR * 0.1 + 0.5));
+            shapeJelly[i3]     = tRadius * Math.cos(tAngle + progress * 2.5);
+            shapeJelly[i3 + 1] = yDist;
+            shapeJelly[i3 + 2] = tRadius * Math.sin(tAngle + progress * 2.5);
         }
-        shapeBlackHole[i3]     = bhx;
-        shapeBlackHole[i3 + 1] = bhy;
-        shapeBlackHole[i3 + 2] = bhz;
+
+        // -----------------------------------------
+        // MODEL 2: Cybernetic Humanoid Face & Skull
+        // -----------------------------------------
+        const uH = Math.random() * Math.PI * 2;
+        const vH = Math.random() * Math.PI;
+        // Head Cranium Ellipsoid
+        let hx = 11.5 * Math.sin(vH) * Math.cos(uH);
+        let hy = 15.0 * Math.cos(vH);
+        let hz = 12.5 * Math.sin(vH) * Math.sin(uH);
+
+        // Sculpt Chin, Jaw & Eye-Sockets
+        if (hy < 0.0) {
+            hx *= (1.0 + hy * 0.035); // Jaw taper
+            if (hz > 0.0) hz *= (1.0 + hy * 0.02);
+        }
+        // Eye Sockets void
+        if (hy > 1.0 && hy < 5.0 && hz > 6.0 && Math.abs(hx) > 1.8 && Math.abs(hx) < 6.8) {
+            hz -= 3.5;
+        }
+        // Nose Bridge protrusion
+        if (hy > -2.0 && hy < 3.0 && Math.abs(hx) < 2.0 && hz > 7.0) {
+            hz += 3.0;
+        }
+        // Brain/Neck Cyber Lines
+        if (i % 7 === 0) {
+            hy = (Math.random() - 0.5) * 32.0;
+            hx = (Math.random() - 0.5) * 8.0;
+            hz = -Math.random() * 8.0;
+        }
+        shapeHuman[i3]     = hx * 1.1;
+        shapeHuman[i3 + 1] = hy * 1.1;
+        shapeHuman[i3 + 2] = hz * 1.1;
+
+        // -----------------------------------------
+        // MODEL 3: Mechanical Cyber Car & Engine
+        // -----------------------------------------
+        let cx, cy, cz;
+        let expX, expY, expZ;
+
+        if (i < particleCount * 0.28) {
+            // Aerodynamic Wedge Chassis & Body Panels
+            const carLen = (Math.random() - 0.5) * 36.0;
+            const carWidth = (1.0 - Math.pow(carLen / 20.0, 2) * 0.3) * 11.0;
+            cx = (Math.random() - 0.5) * carWidth;
+            cz = carLen;
+            cy = Math.sin((cz + 18.0) * 0.12) * 3.5 + (Math.random() - 0.5) * 1.5;
+            // Roof cabin
+            if (Math.abs(cz) < 8.0 && Math.abs(cx) < 7.0 && cy > 1.0) {
+                cy += 3.8;
+                cx *= 0.8;
+            }
+            expX = cx * 1.8; expY = cy * 2.2 + 8.0; expZ = cz * 1.2;
+        } else if (i < particleCount * 0.6) {
+            // 4 High-Tech Spoke Wheels & Brake Rotors
+            const wheelIdx = i % 4;
+            const wZ = (wheelIdx < 2) ? 11.0 : -11.0;
+            const wX = (wheelIdx % 2 === 0) ? 8.2 : -8.2;
+            const wAngle = Math.random() * Math.PI * 2;
+            const wRadius = 4.2 * Math.sqrt(Math.random());
+            cx = wX + (Math.random() - 0.5) * 1.2;
+            cy = Math.sin(wAngle) * wRadius - 2.5;
+            cz = wZ + Math.cos(wAngle) * wRadius;
+            expX = wX * 2.8; expY = cy; expZ = cz * 1.5;
+        } else {
+            // Internal Exposed V8 Engine Core & Pistons
+            const engProgress = Math.random();
+            cx = (Math.random() - 0.5) * 6.5;
+            cy = (Math.random() - 0.5) * 5.0 + 0.5;
+            cz = (Math.random() - 0.5) * 9.0 - 2.0;
+            // Pistons layout
+            if (i % 8 === 0) {
+                cy += Math.sin(cz * 2.0) * 3.0;
+            }
+            expX = cx * 3.5; expY = cy * 3.0 + 12.0; expZ = cz * 2.0;
+        }
+        shapeCar[i3]     = cx;
+        shapeCar[i3 + 1] = cy;
+        shapeCar[i3 + 2] = cz;
+
+        aExplodeDir[i3]     = expX;
+        aExplodeDir[i3 + 1] = expY;
+        aExplodeDir[i3 + 2] = expZ;
+
+        // -----------------------------------------
+        // MODEL 4: Quantum Singularity & Accretion Jets
+        // -----------------------------------------
+        let vx, vy, vz;
+        if (i < particleCount * 0.22) {
+            // Dual Relativistic Polar Jets
+            const jetH = (Math.random() * 2.0 - 1.0) * 40.0;
+            const jetRad = (Math.abs(jetH) * 0.08 + 0.4) * Math.random();
+            const jAngle = Math.random() * Math.PI * 2;
+            vx = Math.cos(jAngle) * jetRad;
+            vz = Math.sin(jAngle) * jetRad;
+            vy = jetH;
+        } else {
+            // Gravitational Event Horizon Disk
+            const vR = 6.0 + Math.pow(Math.random(), 1.8) * 32.0;
+            const vAngle = Math.random() * Math.PI * 2;
+            vx = Math.cos(vAngle) * vR;
+            vz = Math.sin(vAngle) * vR;
+            vy = (Math.random() - 0.5) * (3.5 / (vR * 0.12 + 0.5));
+        }
+        shapeVortex[i3]     = vx;
+        shapeVortex[i3 + 1] = vy;
+        shapeVortex[i3 + 2] = vz;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(shapeNebula, 3));
-    geometry.setAttribute('aShape0', new THREE.BufferAttribute(shapeNebula, 3));
-    geometry.setAttribute('aShape1', new THREE.BufferAttribute(shapeHeart, 3));
-    geometry.setAttribute('aShape2', new THREE.BufferAttribute(shapeButterfly, 3));
-    geometry.setAttribute('aShape3', new THREE.BufferAttribute(shapeStar, 3));
-    geometry.setAttribute('aShape4', new THREE.BufferAttribute(shapeHelix, 3));
-    geometry.setAttribute('aShape5', new THREE.BufferAttribute(shapeBlackHole, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(shapeJelly, 3));
+    geometry.setAttribute('aShapeJelly', new THREE.BufferAttribute(shapeJelly, 3));
+    geometry.setAttribute('aShapeHuman', new THREE.BufferAttribute(shapeHuman, 3));
+    geometry.setAttribute('aShapeCar', new THREE.BufferAttribute(shapeCar, 3));
+    geometry.setAttribute('aShapeVortex', new THREE.BufferAttribute(shapeVortex, 3));
+    geometry.setAttribute('aExplodeDir', new THREE.BufferAttribute(aExplodeDir, 3));
     geometry.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
 
     // -------------------------------------------------------------
-    // 4. Custom GLSL Shader Material (All Morphing Executed on GPU)
+    // 4. Custom GPU Shader (Instant Parallel Morphing & Animations)
     // -------------------------------------------------------------
     const colorThemes = [
-        { a: new THREE.Color(0x00f0ff), b: new THREE.Color(0x7700ff) }, // Nebula
-        { a: new THREE.Color(0xff0044), b: new THREE.Color(0xff66aa) }, // Heart
-        { a: new THREE.Color(0xcc00ff), b: new THREE.Color(0x00ffcc) }, // Butterfly
-        { a: new THREE.Color(0xffaa00), b: new THREE.Color(0xffffff) }, // Star
-        { a: new THREE.Color(0x00ff88), b: new THREE.Color(0x00aaff) }, // Helix
-        { a: new THREE.Color(0xff3300), b: new THREE.Color(0x8800ff) }  // Black Hole
+        { a: new THREE.Color(0x00f3ff), b: new THREE.Color(0xa600ff) }, // Jelly: Cyan / Purple
+        { a: new THREE.Color(0x00ff88), b: new THREE.Color(0x0088ff) }, // Human: Matrix Green / Sky
+        { a: new THREE.Color(0xff0044), b: new THREE.Color(0xffaa00) }, // Car: Red / Gold
+        { a: new THREE.Color(0xff00cc), b: new THREE.Color(0x00ffff) }  // Singularity: Neon Violet
     ];
 
     const particleMaterial = new THREE.ShaderMaterial({
         vertexShader: `
-            attribute vec3 aShape0;
-            attribute vec3 aShape1;
-            attribute vec3 aShape2;
-            attribute vec3 aShape3;
-            attribute vec3 aShape4;
-            attribute vec3 aShape5;
+            attribute vec3 aShapeJelly;
+            attribute vec3 aShapeHuman;
+            attribute vec3 aShapeCar;
+            attribute vec3 aShapeVortex;
+            attribute vec3 aExplodeDir;
             attribute float aSeed;
 
-            uniform float uWeights[6];
+            uniform float uWeights[4];
+            uniform float uExplode;
             uniform float uTime;
-            uniform vec3 uHandPos;
-            uniform mat3 uHandRot;
+            uniform vec3 uPosition;
+            uniform mat4 uRotation;
             uniform float uScale;
             uniform vec3 uColorA;
             uniform vec3 uColorB;
@@ -429,64 +468,57 @@
             varying float vAlpha;
 
             void main() {
-                // Morph across all 6 targets simultaneously via weighted blend
-                vec3 morphed = aShape0 * uWeights[0]
-                             + aShape1 * uWeights[1]
-                             + aShape2 * uWeights[2]
-                             + aShape3 * uWeights[3]
-                             + aShape4 * uWeights[4]
-                             + aShape5 * uWeights[5];
+                // Morph across models smoothly
+                vec3 basePos = aShapeJelly * uWeights[0]
+                             + aShapeHuman * uWeights[1]
+                             + aShapeCar   * uWeights[2]
+                             + aShapeVortex* uWeights[3];
 
-                // Procedural dynamic oscillations per shape
-                // Heartbeat pulse
-                if (uWeights[1] > 0.01) {
-                    float beat = sin(uTime * 7.0) * exp(-mod(uTime * 3.5, 3.14159)) * 0.18;
-                    morphed *= (1.0 + beat * uWeights[1]);
+                // 1. Dynamic Jellyfish Breathing & Tentacle Undulation
+                if (uWeights[0] > 0.01) {
+                    float pulse = sin(uTime * 3.2) * 0.16 + 1.0;
+                    if (basePos.y > 0.0) {
+                        basePos.xz *= pulse;
+                        basePos.y *= (2.0 - pulse);
+                    } else {
+                        // Fluid underwater drag for tentacles
+                        basePos.x += sin(uTime * 2.5 + basePos.y * 0.25) * 1.8;
+                        basePos.z += cos(uTime * 2.2 + basePos.y * 0.25) * 1.8;
+                    }
                 }
-                // Butterfly wing flutter
-                if (uWeights[2] > 0.01) {
-                    float flap = sin(uTime * 10.0 + aSeed * 2.0) * 0.45 * uWeights[2];
-                    morphed.z += abs(morphed.x) * flap;
-                    morphed.y += sin(uTime * 4.0) * 1.5 * uWeights[2];
+
+                // 2. Mechanical Car Explosion / Dismantle Effect
+                if (uWeights[2] > 0.01 && uExplode > 0.01) {
+                    vec3 explodedPos = mix(basePos, aExplodeDir, uExplode);
+                    basePos = mix(basePos, explodedPos, uWeights[2]);
                 }
-                // DNA axial rotation
-                if (uWeights[4] > 0.01) {
-                    float angle = uTime * 1.6 * uWeights[4];
-                    float ca = cos(angle); float sa = sin(angle);
-                    morphed.xz = mat2(ca, -sa, sa, ca) * morphed.xz;
-                }
-                // Black hole accretion disk vortex spin
-                if (uWeights[5] > 0.01) {
-                    float r = length(morphed.xz);
-                    float spin = (25.0 / (r + 2.5)) * uTime * 0.35 * uWeights[5];
+
+                // 3. Singularity Black Hole Vortex Spin
+                if (uWeights[3] > 0.01) {
+                    float r = length(basePos.xz);
+                    float spin = (30.0 / (r + 2.5)) * uTime * 0.4 * uWeights[3];
                     float cs = cos(spin); float ss = sin(spin);
-                    morphed.xz = mat2(cs, -ss, ss, cs) * morphed.xz;
+                    basePos.xz = mat2(cs, -ss, ss, cs) * basePos.xz;
                 }
 
-                // Breathing turbulence
-                morphed += vec3(
-                    sin(uTime * 1.8 + morphed.y * 0.1),
-                    cos(uTime * 1.5 + morphed.x * 0.1),
-                    sin(uTime * 2.1 + morphed.z * 0.1)
-                ) * 0.35;
-
-                // 3D orientation & spatial hand coordinates
-                vec3 finalWorldPos = (uHandRot * (morphed * uScale)) + uHandPos;
+                // Apply Dual-Hand 3D Transformation (Rotate -> Scale -> Translate)
+                vec4 rotatedPos = uRotation * vec4(basePos * uScale, 1.0);
+                vec3 finalWorldPos = rotatedPos.xyz + uPosition;
 
                 vec4 mvPosition = modelViewMatrix * vec4(finalWorldPos, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
 
-                // Size attenuation with camera depth
-                float pSize = (220.0 / -mvPosition.z) * (0.65 + 0.45 * fract(aSeed * 437.0));
-                gl_PointSize = clamp(pSize, 1.5, 45.0);
+                // Depth Size Attenuation
+                float pSize = (260.0 / -mvPosition.z) * (0.65 + 0.45 * fract(aSeed * 493.0));
+                gl_PointSize = clamp(pSize, 1.5, 48.0);
 
-                // Dual-spectrum color gradient
-                float normDist = clamp(length(morphed) / 26.0, 0.0, 1.0);
-                vec3 col = mix(uColorA, uColorB, normDist + sin(aSeed * 6.28 + uTime) * 0.15);
-                col += vec3(0.2, 0.25, 0.3) * (1.0 - normDist); // Specular core
+                // Multi-Spectrum Color
+                float dist = length(basePos) / 24.0;
+                vec3 col = mix(uColorA, uColorB, clamp(dist + sin(aSeed * 6.28 + uTime) * 0.15, 0.0, 1.0));
+                col += vec3(0.2, 0.3, 0.4) * (1.0 - clamp(dist, 0.0, 1.0)); // Radiant center
 
                 vColor = col;
-                vAlpha = clamp(1.15 - normDist * 0.35, 0.45, 1.0);
+                vAlpha = 0.95;
             }
         `,
         fragmentShader: `
@@ -494,26 +526,27 @@
             varying float vAlpha;
 
             void main() {
-                // Soft radial photonic discs with anti-aliasing
-                vec2 p = gl_PointCoord * 2.0 - 1.0;
-                float r2 = dot(p, p);
+                // Radial photonic glow disk
+                vec2 coord = gl_PointCoord * 2.0 - 1.0;
+                float r2 = dot(coord, coord);
                 if (r2 > 1.0) discard;
 
-                float intensity = exp(-r2 * 3.2);
-                float glow = pow(1.0 - sqrt(r2), 1.6);
-                vec3 finalRGB = vColor * (intensity * 2.2 + glow * 0.85);
+                float glow = exp(-r2 * 3.5);
+                float halo = pow(1.0 - sqrt(r2), 1.8);
+                vec3 finalRGB = vColor * (glow * 2.2 + halo * 0.9);
 
-                gl_FragColor = vec4(finalRGB, glow * vAlpha);
+                gl_FragColor = vec4(finalRGB, halo * vAlpha);
             }
         `,
         uniforms: {
-            uWeights: { value: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
-            uTime: { value: 0.0 },
-            uHandPos: { value: new THREE.Vector3(0, 0, 0) },
-            uHandRot: { value: new THREE.Matrix3() },
-            uScale: { value: 1.0 },
-            uColorA: { value: colorThemes[0].a.clone() },
-            uColorB: { value: colorThemes[0].b.clone() }
+            uWeights:  { value: [1.0, 0.0, 0.0, 0.0] },
+            uExplode:  { value: 0.0 },
+            uTime:     { value: 0.0 },
+            uPosition: { value: new THREE.Vector3(0, 0, 0) },
+            uRotation: { value: new THREE.Matrix4() },
+            uScale:    { value: 1.0 },
+            uColorA:   { value: colorThemes[0].a.clone() },
+            uColorB:   { value: colorThemes[0].b.clone() }
         },
         transparent: true,
         depthWrite: false,
@@ -524,223 +557,226 @@
     scene.add(particleSystem);
 
     // -------------------------------------------------------------
-    // 5. Intelligent Motion & Gesture State Machine
+    // 5. Dual-Hand Motion Machine (Spatial Math & Tracking)
     // -------------------------------------------------------------
-    let currentShapeIndex = 0;
-    let targetShapeIndex = 0;
-    const currentWeights = [1, 0, 0, 0, 0, 0];
-    const targetWeights = [1, 0, 0, 0, 0, 0];
+    let targetModelIdx = 0;
+    const currentWeights = [1, 0, 0, 0];
+    const targetWeights  = [1, 0, 0, 0];
 
-    const currentHandPos = new THREE.Vector3(0, 0, 0);
-    const targetHandPos = new THREE.Vector3(0, 0, 0);
-    const currentHandRot = new THREE.Matrix3();
-    const targetHandRot = new THREE.Matrix3();
+    // Transformation targets
+    const currentPos = new THREE.Vector3(0, 0, 0);
+    const targetPos  = new THREE.Vector3(0, 0, 0);
+    const currentRot = new THREE.Matrix4();
+    const targetRot  = new THREE.Matrix4();
     let currentScale = 1.0;
-    let targetScale = 1.0;
+    let targetScale  = 1.0;
+    let currentExplode = 0.0;
+    let targetExplode = 0.0;
 
-    const gestureNames = ["Nebula", "Heart", "Butterfly", "Hyper Star", "DNA Helix", "Black Hole"];
-    const gestureFreqs = [440, 523.25, 587.33, 659.25, 783.99, 880];
+    const modelNames = ["Bioluminescent Jellyfish", "Cyber Human Head", "Mechanical Car & Parts", "Quantum Singularity"];
 
-    function setGestureMode(idx) {
-        if (idx === targetShapeIndex) return;
-        targetShapeIndex = idx;
-        for (let i = 0; i < 6; i++) targetWeights[i] = (i === idx) ? 1.0 : 0.0;
-        playGestureTone(gestureFreqs[idx]);
+    function setModel(idx) {
+        if (idx === targetModelIdx) return;
+        targetModelIdx = idx;
+        for (let i = 0; i < 4; i++) targetWeights[i] = (i === idx) ? 1.0 : 0.0;
+        playSciFiChime(480 + idx * 120, 800 + idx * 140);
 
-        document.querySelectorAll('.pill').forEach((pill, i) => {
-            pill.classList.toggle('active', i === idx);
+        document.querySelectorAll('.hud-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === idx);
         });
-        document.getElementById('tel-gesture').textContent = gestureNames[idx];
+        document.getElementById('stat-model').textContent = modelNames[idx];
     }
 
-    // Interactive UI HUD Pill clicks
-    document.querySelectorAll('.pill').forEach(pill => {
-        pill.addEventListener('click', (e) => {
-            setGestureMode(parseInt(e.target.dataset.index, 10));
-        });
+    document.querySelectorAll('.hud-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => setModel(parseInt(e.target.dataset.index, 10)));
     });
 
-    // Keyboard Hotkeys [1 - 6]
     window.addEventListener('keydown', (e) => {
-        const keyVal = parseInt(e.key, 10);
-        if (keyVal >= 1 && keyVal <= 6) setGestureMode(keyVal - 1);
+        const val = parseInt(e.key, 10);
+        if (val >= 1 && val <= 4) setModel(val - 1);
     });
 
     // -------------------------------------------------------------
-    // 6. MediaPipe Computer Vision & 3D Spatial Calculation
+    // 6. MediaPipe Vision: Multi-Hand Realtime Engine
     // -------------------------------------------------------------
     const videoElement = document.querySelector('.input_video');
     const loadingElem = document.getElementById('loading');
-    const videoContainer = document.getElementById('video-container');
-    const telTrack = document.getElementById('tel-track');
+    const visionBox = document.getElementById('vision-box');
+    const statHands = document.getElementById('stat-hands');
+    const statZoom = document.getElementById('stat-zoom');
+    const statExplode = document.getElementById('stat-explode');
 
-    function distance(p1, p2) {
+    function distance3D(p1, p2) {
         return Math.hypot(p1.x - p2.x, p1.y - p2.y, (p1.z || 0) - (p2.z || 0));
     }
+
+    let initialHandDistance = null;
 
     function onHandResults(results) {
         if (loadingElem.style.display !== 'none') loadingElem.style.display = 'none';
 
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            videoContainer.classList.add('tracking');
-            telTrack.textContent = 'Active (3D)';
-            telTrack.style.color = '#00ff88';
+        const hands = results.multiHandLandmarks;
 
-            const lm = results.multiHandLandmarks[0];
-            const wrist = lm[0];
-            const indexMCP = lm[5];
-            const middleMCP = lm[9];
-            const pinkyMCP = lm[17];
+        if (hands && hands.length >= 2) {
+            // =========================================================
+            // DUAL-HAND INTERACTION (Two-Hand Master Control)
+            // =========================================================
+            visionBox.className = 'dual';
+            statHands.innerHTML = `<span style="color:#00ff66">2 HANDS LOCKED (DUAL-MODE)</span>`;
 
-            // 1. Precise 3D Position & Depth Estimation
-            const palmSize = distance(wrist, middleMCP);
-            const targetZ = (0.24 / Math.max(palmSize, 0.08) - 1.0) * 22.0; // Distance based Z-Depth
-            const targetX = (0.5 - wrist.x) * 55.0;
-            const targetY = (0.5 - wrist.y) * 38.0;
-            targetHandPos.set(targetX, targetY, THREE.MathUtils.clamp(targetZ, -25, 25));
+            const h1 = hands[0][0]; // Wrist Hand 1
+            const h2 = hands[1][0]; // Wrist Hand 2
 
-            // 2. 3D Hand Orientation (Normal vector & forward axis)
-            const vForward = new THREE.Vector3(middleMCP.x - wrist.x, middleMCP.y - wrist.y, middleMCP.z - wrist.z).normalize();
-            const vAcross = new THREE.Vector3(pinkyMCP.x - indexMCP.x, pinkyMCP.y - indexMCP.y, pinkyMCP.z - indexMCP.z).normalize();
-            const vNormal = new THREE.Vector3().crossVectors(vForward, vAcross).normalize();
-            const vRight = new THREE.Vector3().crossVectors(vNormal, vForward).normalize();
+            // 1. Dual-Hand Midpoint Center (Position Tracking)
+            const midX = ((h1.x + h2.x) * 0.5 - 0.5) * -56.0;
+            const midY = (0.5 - (h1.y + h2.y) * 0.5) * 38.0;
+            const midZ = (0.35 / Math.max(distance3D(h1, h2), 0.1) - 1.2) * 15.0;
+            targetPos.set(midX, midY, THREE.MathUtils.clamp(midZ, -25, 25));
 
-            // Construct 3D rotation matrix
-            targetHandRot.set(
-                vRight.x, vForward.x, vNormal.x,
-                vRight.y, vForward.y, vNormal.y,
-                vRight.z, vForward.z, vNormal.z
-            );
+            // 2. Air Pinch-to-Zoom / Scale (Distance between both hands)
+            const handSpan = distance3D(h1, h2);
+            // Map hand distance (0.15 to 0.7) to scale (0.5x to 2.4x)
+            targetScale = THREE.MathUtils.mapLinear(handSpan, 0.16, 0.65, 0.5, 2.2);
 
-            // 3. Invariant Finger Extension Ratios
-            const isFingerExtended = (tipIdx, mcpIdx) => distance(lm[tipIdx], wrist) > distance(lm[mcpIdx], wrist) * 1.35;
-            const thumbUp  = distance(lm[4], pinkyMCP) > distance(lm[2], pinkyMCP) * 1.35;
-            const indexUp  = isFingerExtended(8, 5);
-            const middleUp = isFingerExtended(12, 9);
-            const ringUp   = isFingerExtended(16, 13);
-            const pinkyUp  = isFingerExtended(20, 17);
+            // 3. Two-Hand 3D Rotation Steering Wheel (Roll, Pitch, Yaw)
+            const dx = h2.x - h1.x;
+            const dy = h2.y - h1.y;
+            const dz = (h2.z || 0) - (h1.z || 0);
 
-            // Dynamic Pinch Calculation
-            const pinchDist = distance(lm[4], lm[8]);
-            const isPinch = pinchDist < 0.075;
+            const roll = Math.atan2(dy, dx);
+            const pitch = Math.atan2(dz, Math.hypot(dx, dy));
+            const yaw = (h1.x + h2.x - 1.0) * Math.PI;
 
-            // Gesture Classification Logic
-            if (isPinch) {
-                setGestureMode(1); // Heart
-                targetScale = THREE.MathUtils.mapLinear(pinchDist, 0.02, 0.075, 0.7, 1.2);
-            } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
-                setGestureMode(2); // Fist: Butterfly
-                targetScale = 0.9;
-            } else if (indexUp && pinkyUp && !middleUp && !ringUp) {
-                setGestureMode(5); // Horns / Rock: Black Hole
-                targetScale = 1.25;
-            } else if (indexUp && middleUp && !ringUp && !pinkyUp) {
-                setGestureMode(3); // Peace: Star
-                targetScale = 1.1;
-            } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
-                setGestureMode(4); // Point: DNA Helix
-                targetScale = 1.0;
-            } else if (indexUp && middleUp && ringUp && pinkyUp) {
-                setGestureMode(0); // Open: Nebula
-                targetScale = 1.15;
+            const euler = new THREE.Euler(pitch * 2.0, yaw, -roll);
+            targetRot.makeRotationFromEuler(euler);
+
+            // 4. Dual Open-Hand Spread Detection -> EXPLODE PARTS!
+            const isFist1 = distance3D(hands[0][8], hands[0][0]) < distance3D(hands[0][5], hands[0][0]) * 1.1;
+            const isFist2 = distance3D(hands[1][8], hands[1][0]) < distance3D(hands[1][5], hands[1][0]) * 1.1;
+
+            if (!isFist1 && !isFist2 && handSpan > 0.45) {
+                // Both hands wide open and separated -> Explode!
+                targetExplode = THREE.MathUtils.mapLinear(handSpan, 0.45, 0.8, 0.2, 1.0);
+            } else {
+                targetExplode = 0.0;
             }
+
+        } else if (hands && hands.length === 1) {
+            // =========================================================
+            // SINGLE-HAND FALLBACK INTERACTION
+            // =========================================================
+            visionBox.className = 'single';
+            statHands.innerHTML = `<span style="color:#00f3ff">1 HAND ACTIVE</span>`;
+
+            const lm = hands[0];
+            const wrist = lm[0];
+            const indexTip = lm[8];
+            const thumbTip = lm[4];
+
+            // Position
+            const pX = (0.5 - wrist.x) * 50.0;
+            const pY = (0.5 - wrist.y) * 36.0;
+            targetPos.set(pX, pY, 0);
+
+            // Single hand tilt rotation
+            const rotY = (wrist.x - 0.5) * -3.0;
+            const rotX = (wrist.y - 0.5) * 2.0;
+            targetRot.makeRotationFromEuler(new THREE.Euler(rotX, rotY, 0));
+
+            // Single hand pinch zoom
+            const pinch = distance3D(indexTip, thumbTip);
+            targetScale = THREE.MathUtils.mapLinear(pinch, 0.03, 0.18, 0.6, 1.4);
+            targetExplode = 0.0;
+
         } else {
-            videoContainer.classList.remove('tracking');
-            telTrack.textContent = 'Standby (Mouse)';
-            telTrack.style.color = '#8fa0b5';
-            targetHandPos.set(0, 0, 0);
-            targetHandRot.identity();
+            // Standby / No hands in frame
+            visionBox.className = '';
+            statHands.textContent = '0 (SEARCHING)';
+            targetPos.set(0, 0, 0);
+            targetRot.identity();
             targetScale = 1.0;
+            targetExplode = 0.0;
         }
+
+        statZoom.textContent = targetScale.toFixed(2) + 'x';
+        statExplode.textContent = Math.round(targetExplode * 100) + '%';
     }
 
-    const hands = new Hands({
+    const handsTracker = new Hands({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
     });
-    hands.setOptions({
-        maxNumHands: 1,
+    handsTracker.setOptions({
+        maxNumHands: 2, // Enable Dual Hand Tracking!
         modelComplexity: 1,
         minDetectionConfidence: 0.55,
         minTrackingConfidence: 0.55
     });
-    hands.onResults(onHandResults);
+    handsTracker.onResults(onHandResults);
 
     const cameraUtils = new Camera(videoElement, {
-        onFrame: async () => { await hands.send({ image: videoElement }); },
+        onFrame: async () => { await handsTracker.send({ image: videoElement }); },
         width: 640, height: 480
     });
     cameraUtils.start().catch(() => {
         loadingElem.style.display = 'none';
-        telTrack.textContent = 'Camera Off (Use Hotkeys 1-6)';
+        statHands.textContent = 'CAMERA BLOCKED (USE MOUSE)';
     });
 
-    // Mouse Fallback Orbit Interaction
-    let mouseInteracting = false;
+    // Mouse Fallback
     window.addEventListener('pointermove', (e) => {
         if (e.buttons === 1) {
-            mouseInteracting = true;
-            targetHandPos.x = (e.clientX / window.innerWidth - 0.5) * 50;
-            targetHandPos.y = -(e.clientY / window.innerHeight - 0.5) * 35;
+            targetPos.x = (e.clientX / window.innerWidth - 0.5) * 45;
+            targetPos.y = -(e.clientY / window.innerHeight - 0.5) * 32;
         }
     });
-    window.addEventListener('pointerup', () => { mouseInteracting = false; });
 
     // -------------------------------------------------------------
     // 7. Render Loop & Smooth Physical Interpolation
     // -------------------------------------------------------------
     const clock = new THREE.Clock();
-    let frameCount = 0;
-    let lastFpsUpdate = 0;
-    const telFps = document.getElementById('tel-fps');
 
     function animate() {
         requestAnimationFrame(animate);
 
         const elapsedTime = clock.getElapsedTime();
-        const delta = clock.getDelta();
 
-        // FPS Counter
-        frameCount++;
-        if (elapsedTime - lastFpsUpdate > 0.5) {
-            telFps.textContent = Math.round((frameCount / (elapsedTime - lastFpsUpdate)));
-            frameCount = 0;
-            lastFpsUpdate = elapsedTime;
-        }
-
-        // Interpolate Shader Weights (GPU Shape Morphing)
-        for (let i = 0; i < 6; i++) {
-            currentWeights[i] += (targetWeights[i] - currentWeights[i]) * 0.08;
+        // 1. Smoothly morph shape weights on GPU
+        for (let i = 0; i < 4; i++) {
+            currentWeights[i] += (targetWeights[i] - currentWeights[i]) * 0.07;
         }
         particleMaterial.uniforms.uWeights.value = currentWeights;
         particleMaterial.uniforms.uTime.value = elapsedTime;
 
-        // Smooth Spatial Translation & Rotation Lerp
-        currentHandPos.lerp(targetHandPos, 0.09);
+        // 2. Smoothly Lerp 3D Position, Scale & Explode Amount
+        currentPos.lerp(targetPos, 0.08);
         currentScale += (targetScale - currentScale) * 0.08;
-        particleMaterial.uniforms.uHandPos.value.copy(currentHandPos);
-        particleMaterial.uniforms.uScale.value = currentScale;
+        currentExplode += (targetExplode - currentExplode) * 0.08;
 
-        // Smooth Matrix3 Slerp Approximation
-        const curE = currentHandRot.elements;
-        const tgtE = targetHandRot.elements;
-        for (let k = 0; k < 9; k++) {
+        particleMaterial.uniforms.uPosition.value.copy(currentPos);
+        particleMaterial.uniforms.uScale.value = currentScale;
+        particleMaterial.uniforms.uExplode.value = currentExplode;
+
+        // 3. Smooth Matrix4 Rotation Slerp
+        const curE = currentRot.elements;
+        const tgtE = targetRot.elements;
+        for (let k = 0; k < 16; k++) {
             curE[k] += (tgtE[k] - curE[k]) * 0.08;
         }
-        particleMaterial.uniforms.uHandRot.value.copy(currentHandRot);
+        particleMaterial.uniforms.uRotation.value.copy(currentRot);
 
-        // Interpolate Color Palettes
-        const activeTheme = colorThemes[targetShapeIndex];
-        particleMaterial.uniforms.uColorA.value.lerp(activeTheme.a, 0.06);
-        particleMaterial.uniforms.uColorB.value.lerp(activeTheme.b, 0.06);
+        // 4. Color Palette Transition
+        const curTheme = colorThemes[targetModelIdx];
+        particleMaterial.uniforms.uColorA.value.lerp(curTheme.a, 0.05);
+        particleMaterial.uniforms.uColorB.value.lerp(curTheme.b, 0.05);
 
-        // Gentle Ambient Scene Spin
-        particleSystem.rotation.y = elapsedTime * 0.05;
+        // Idle slow spin
+        particleSystem.rotation.y = elapsedTime * 0.06;
 
-        // Post-Processing Render Pass
+        // Unreal Bloom Pass
         composer.render();
     }
 
-    // Responsive Canvas Resize
+    // Responsive Auto Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
