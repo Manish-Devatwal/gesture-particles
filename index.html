@@ -3,330 +3,752 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gesture Particles - Master Edition</title>
+    <title>Gesture Particles - Quantum FX Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
-        canvas { display: block; }
-        #info {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            pointer-events: none;
-            z-index: 10;
-            text-shadow: 0 0 5px #000;
-            line-height: 1.5;
+        :root {
+            --neon-blue: #00f0ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #ffaa00;
+            --glass-bg: rgba(10, 15, 25, 0.65);
+            --glass-border: rgba(0, 240, 255, 0.25);
         }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #030308;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            user-select: none;
+            color: #fff;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Glassmorphism HUD */
+        #hud {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .title-badge {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 8px 24px;
+            border-radius: 999px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 240, 255, 0.2);
+            text-align: center;
+        }
+
+        .title-badge h1 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #00f0ff, #fff, #ff00ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gesture-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-width: 90vw;
+            pointer-events: auto;
+        }
+
+        .pill {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.75);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .pill:hover {
+            border-color: var(--neon-blue);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .pill.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--neon-blue);
+            color: #00f0ff;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+            transform: scale(1.05);
+        }
+
+        /* Video PiP Container */
         #video-container {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 160px;
-            height: 120px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
+            bottom: 24px;
+            left: 24px;
+            width: 150px;
+            height: 112px;
+            border-radius: 14px;
             overflow: hidden;
+            border: 1.5px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            background: #000;
             z-index: 10;
-            transform: scaleX(-1); /* Mirror the video */
+            transform: scaleX(-1);
+            transition: border-color 0.3s;
         }
+
+        #video-container.tracking {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
         video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
+        /* Telemetry & Stats */
+        #telemetry {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #8fa0b5;
+            z-index: 10;
+            line-height: 1.6;
+        }
+
+        #telemetry span {
+            color: #00f0ff;
+            font-weight: bold;
+        }
+
         #loading {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #00ffcc;
-            font-size: 24px;
-            z-index: 20;
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(3, 3, 8, 0.85);
+            padding: 18px 32px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
+
+    <!-- Core Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js Postprocessing Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <!-- MediaPipe Hands -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 </head>
 <body>
 
-    <div id="info">
-        <h1>Master Shape Shifter</h1>
-        <p>
-            🖐 <b>Open:</b> Cloud | ✊ <b>Fist:</b> Butterfly 🦋 | 🤏 <b>Pinch:</b> Heart ❤️<br>
-            ✌️ <b>Peace:</b> Star ⭐ | ☝️ <b>Point:</b> DNA Helix 🧬
-        </p>
+    <div id="hud">
+        <div class="title-badge">
+            <h1>Quantum Particle Engine</h1>
+        </div>
+        <div class="gesture-pills">
+            <div class="pill active" data-index="0">🖐 Open: Nebula [1]</div>
+            <div class="pill" data-index="1">🤏 Pinch: Heart [2]</div>
+            <div class="pill" data-index="2">✊ Fist: Butterfly [3]</div>
+            <div class="pill" data-index="3">✌️ Peace: Hyper Star [4]</div>
+            <div class="pill" data-index="4">☝️ Point: DNA Helix [5]</div>
+            <div class="pill" data-index="5">🤘 Horns: Black Hole [6]</div>
+        </div>
     </div>
-    <div id="loading">Initialize Camera...</div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <span>Initializing Neural Vision...</span>
+    </div>
+
     <div id="video-container">
-        <video class="input_video"></video>
+        <video class="input_video" playsinline></video>
+    </div>
+
+    <div id="telemetry">
+        Particles: <span>60,000</span> (GPU Accelerated)<br>
+        Gesture: <span id="tel-gesture">Nebula</span><br>
+        FPS: <span id="tel-fps">60</span> | Tracking: <span id="tel-track">Offline</span>
     </div>
 
 <script>
-    
+    // -------------------------------------------------------------
+    // 1. Audio Synthesis Feedback (Zero External Dependencies)
+    // -------------------------------------------------------------
+    const audioCtx = window.AudioContext ? new (window.AudioContext || window.webkitAudioContext)() : null;
+    function playGestureTone(freq = 440) {
+        if (!audioCtx || audioCtx.state === 'suspended') return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.6, audioCtx.currentTime + 0.16);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.23);
+        } catch(e) {}
+    }
+    window.addEventListener('click', () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+
+    // -------------------------------------------------------------
+    // 2. Three.js Scene & Cinematic Post-Processing Setup
+    // -------------------------------------------------------------
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.02);
+    scene.fog = new THREE.FogExp2(0x030308, 0.015);
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 45; 
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 48);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
     document.body.appendChild(renderer.domElement);
 
+    // Unreal Bloom Pass
+    const renderScene = new THREE.RenderPass(scene, camera);
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        1.6,  // Bloom Strength
+        0.45, // Radius
+        0.15  // Threshold
+    );
+    const composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
 
-    const particleCount = 20000; 
+    // -------------------------------------------------------------
+    // 3. Mathematical Shape Synthesizer (60,000 Particles)
+    // -------------------------------------------------------------
+    const particleCount = 60000;
     const geometry = new THREE.BufferGeometry();
-    
-    const initialPositions = []; 
-    const heartPositions = [];   
-    const butterflyPositions = []; 
-    const starPositions = [];    
-    const helixPositions = [];   
-    
-    const colors = [];
 
-    
-    const colBlue = new THREE.Color(0x00ffff);
-    const colRed = new THREE.Color(0xff0033);
-    const colPurple = new THREE.Color(0xaa00ff);
-    const colGold = new THREE.Color(0xffd700);
-    const colGreen = new THREE.Color(0x00ff00);
-
-    function randomPoint(scale) {
-        return (Math.random() - 0.5) * scale;
-    }
+    const shapeNebula = new Float32Array(particleCount * 3);
+    const shapeHeart = new Float32Array(particleCount * 3);
+    const shapeButterfly = new Float32Array(particleCount * 3);
+    const shapeStar = new Float32Array(particleCount * 3);
+    const shapeHelix = new Float32Array(particleCount * 3);
+    const shapeBlackHole = new Float32Array(particleCount * 3);
+    const aSeed = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i++) {
-        
-        initialPositions.push(randomPoint(70), randomPoint(50), randomPoint(50));
+        const i3 = i * 3;
+        aSeed[i] = Math.random();
 
-        
-        const t = Math.random() * Math.PI * 2;
-        let hx = 16 * Math.pow(Math.sin(t), 3);
-        let hy = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-        let hz = (Math.random() - 0.5) * 6; 
-        heartPositions.push(hx * 0.8, hy * 0.8, hz);
+        // 1. Quantum Nebula (Spherical Spiral with Volumetric Filament Core)
+        const phi = Math.acos(1 - 2 * (i + 0.5) / particleCount);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+        const radius = 26 * Math.cbrt(Math.random()) * (0.8 + 0.3 * Math.sin(theta * 3.0));
+        shapeNebula[i3]     = radius * Math.sin(phi) * Math.cos(theta);
+        shapeNebula[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        shapeNebula[i3 + 2] = radius * Math.cos(phi);
 
-        const tb = Math.random() * 12 * Math.PI; 
-        const r = Math.exp(Math.cos(tb)) - 2 * Math.cos(4*tb) + Math.pow(Math.sin(tb/12), 5);
-        let bx = r * Math.sin(tb) * 6;
-        let by = r * Math.cos(tb) * 6 - 5;
-        let bz = (Math.random() - 0.5) * 5;
-        butterflyPositions.push(bx, by, bz);
+        // 2. Volumetric 3D Anatomical Heart (Taubin Solid Surface)
+        const tHeart = Math.PI * (Math.random() * 2 - 1);
+        const uHeart = Math.PI * (Math.random() * 2 - 1);
+        const hx = 16 * Math.pow(Math.sin(tHeart), 3) * Math.cos(uHeart);
+        const hy = (13 * Math.cos(tHeart) - 5 * Math.cos(2*tHeart) - 2 * Math.cos(3*tHeart) - Math.cos(4*tHeart));
+        const hz = 16 * Math.pow(Math.sin(tHeart), 3) * Math.sin(uHeart) * 0.65;
+        shapeHeart[i3]     = hx * 0.85;
+        shapeHeart[i3 + 1] = hy * 0.85 + 2.0;
+        shapeHeart[i3 + 2] = hz * 0.85;
 
-        
-        const ts = Math.random() * Math.PI * 2;
-    
-        const starR = 10 + 5 * Math.cos(5 * ts); 
+        // 3. 3D Monarch Butterfly (Curved Wing Parametric Surface)
+        const tb = Math.random() * 12 * Math.PI;
+        const rB = Math.exp(Math.cos(tb)) - 2 * Math.cos(4 * tb) + Math.pow(Math.sin(tb / 12), 5);
+        const spread = Math.random() * 0.25 + 0.85;
+        const bx = rB * Math.sin(tb) * 7.5 * spread;
+        const by = rB * Math.cos(tb) * 7.5 * spread - 3.0;
+        const bz = Math.pow(Math.abs(bx) / 10, 1.4) * (Math.random() * 2 - 1) * 3.5;
+        shapeButterfly[i3]     = bx;
+        shapeButterfly[i3 + 1] = by;
+        shapeButterfly[i3 + 2] = bz;
 
-        const finalR = starR * (0.8 + Math.random() * 0.4);
-        
-        let sx = finalR * Math.cos(ts);
-        let sy = finalR * Math.sin(ts);
-        let sz = (Math.random() - 0.5) * 4; 
-        starPositions.push(sx, sy, sz);
+        // 4. Hyper-Stellated Starhedron (Radiant Core + 8 Coronal Rays)
+        const uStar = Math.random() * Math.PI * 2;
+        const vStar = Math.acos(Math.random() * 2 - 1);
+        const spikes = Math.pow(Math.abs(Math.sin(4 * uStar) * Math.sin(4 * vStar)), 3.5) * 25.0;
+        const coreR = 7.0 + Math.random() * 3.5;
+        const starDist = coreR + spikes;
+        shapeStar[i3]     = starDist * Math.sin(vStar) * Math.cos(uStar);
+        shapeStar[i3 + 1] = starDist * Math.sin(vStar) * Math.sin(uStar);
+        shapeStar[i3 + 2] = starDist * Math.cos(vStar);
 
-        
-    
-        const th = (i / particleCount) * 10 * Math.PI; 
-        const strand = (i % 2 === 0) ? 1 : -1; 
-        
-        let hlx = Math.cos(th) * 6;
-        let hlz = Math.sin(th) * 6 + (strand * 3); 
-        let hly = (i / particleCount) * 40 - 20; 
-        
-              hlx += (Math.random()-0.5);
-        hlz += (Math.random()-0.5);
-        
-        helixPositions.push(hlx, hly, hlz);
+        // 5. Bio-Double Helix (DNA Strands + Cross-Bridge Rungs)
+        const progress = (i / particleCount);
+        const hAngle = progress * 8.0 * Math.PI * 2.0;
+        const hHeight = (progress - 0.5) * 55.0;
+        const helixR = 8.5;
+        let hlx, hly = hHeight, hlz;
+        if (i % 6 === 0) {
+            const bridgeT = (Math.random() * 2.0 - 1.0);
+            hlx = Math.cos(hAngle) * (helixR * bridgeT);
+            hlz = Math.sin(hAngle) * (helixR * bridgeT);
+        } else {
+            const strandOffset = (i % 2 === 0) ? 0 : Math.PI;
+            const jitter = (Math.random() - 0.5) * 1.2;
+            hlx = Math.cos(hAngle + strandOffset) * (helixR + jitter);
+            hlz = Math.sin(hAngle + strandOffset) * (helixR + jitter);
+        }
+        shapeHelix[i3]     = hlx;
+        shapeHelix[i3 + 1] = hly;
+        shapeHelix[i3 + 2] = hlz;
 
-       
-        colors.push(colBlue.r, colBlue.g, colBlue.b);
+        // 6. Cosmic Black Hole (Accretion Disk, Core & Polar Relativistic Jets)
+        let bhx, bhy, bhz;
+        if (i < particleCount * 0.16) {
+            const jetH = (Math.random() * 2 - 1) * 36.0;
+            const jetR = (Math.abs(jetH) * 0.08 + 0.5) * Math.random();
+            const jetAngle = Math.random() * Math.PI * 2;
+            bhx = Math.cos(jetAngle) * jetR;
+            bhz = Math.sin(jetAngle) * jetR;
+            bhy = jetH;
+        } else if (i < particleCount * 0.38) {
+            const rSph = 4.5 * Math.cbrt(Math.random());
+            const spTheta = Math.random() * Math.PI * 2;
+            const spPhi = Math.acos(Math.random() * 2 - 1);
+            bhx = rSph * Math.sin(spPhi) * Math.cos(spTheta);
+            bhy = rSph * Math.sin(spPhi) * Math.sin(spTheta);
+            bhz = rSph * Math.cos(spPhi);
+        } else {
+            const ringR = 7.5 + Math.pow(Math.random(), 1.7) * 26.0;
+            const ringTh = Math.random() * Math.PI * 2;
+            bhx = ringR * Math.cos(ringTh);
+            bhz = ringR * Math.sin(ringTh);
+            bhy = (Math.random() - 0.5) * (1.8 / (ringR * 0.1 + 0.5));
+        }
+        shapeBlackHole[i3]     = bhx;
+        shapeBlackHole[i3 + 1] = bhy;
+        shapeBlackHole[i3 + 2] = bhz;
     }
 
-    const currentPositions = new Float32Array(initialPositions);
-    geometry.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(shapeNebula, 3));
+    geometry.setAttribute('aShape0', new THREE.BufferAttribute(shapeNebula, 3));
+    geometry.setAttribute('aShape1', new THREE.BufferAttribute(shapeHeart, 3));
+    geometry.setAttribute('aShape2', new THREE.BufferAttribute(shapeButterfly, 3));
+    geometry.setAttribute('aShape3', new THREE.BufferAttribute(shapeStar, 3));
+    geometry.setAttribute('aShape4', new THREE.BufferAttribute(shapeHelix, 3));
+    geometry.setAttribute('aShape5', new THREE.BufferAttribute(shapeBlackHole, 3));
+    geometry.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
 
-    const material = new THREE.PointsMaterial({
-        size: 0.3,
-        vertexColors: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
+    // -------------------------------------------------------------
+    // 4. Custom GLSL Shader Material (All Morphing Executed on GPU)
+    // -------------------------------------------------------------
+    const colorThemes = [
+        { a: new THREE.Color(0x00f0ff), b: new THREE.Color(0x7700ff) }, // Nebula
+        { a: new THREE.Color(0xff0044), b: new THREE.Color(0xff66aa) }, // Heart
+        { a: new THREE.Color(0xcc00ff), b: new THREE.Color(0x00ffcc) }, // Butterfly
+        { a: new THREE.Color(0xffaa00), b: new THREE.Color(0xffffff) }, // Star
+        { a: new THREE.Color(0x00ff88), b: new THREE.Color(0x00aaff) }, // Helix
+        { a: new THREE.Color(0xff3300), b: new THREE.Color(0x8800ff) }  // Black Hole
+    ];
+
+    const particleMaterial = new THREE.ShaderMaterial({
+        vertexShader: `
+            attribute vec3 aShape0;
+            attribute vec3 aShape1;
+            attribute vec3 aShape2;
+            attribute vec3 aShape3;
+            attribute vec3 aShape4;
+            attribute vec3 aShape5;
+            attribute float aSeed;
+
+            uniform float uWeights[6];
+            uniform float uTime;
+            uniform vec3 uHandPos;
+            uniform mat3 uHandRot;
+            uniform float uScale;
+            uniform vec3 uColorA;
+            uniform vec3 uColorB;
+
+            varying vec3 vColor;
+            varying float vAlpha;
+
+            void main() {
+                // Morph across all 6 targets simultaneously via weighted blend
+                vec3 morphed = aShape0 * uWeights[0]
+                             + aShape1 * uWeights[1]
+                             + aShape2 * uWeights[2]
+                             + aShape3 * uWeights[3]
+                             + aShape4 * uWeights[4]
+                             + aShape5 * uWeights[5];
+
+                // Procedural dynamic oscillations per shape
+                // Heartbeat pulse
+                if (uWeights[1] > 0.01) {
+                    float beat = sin(uTime * 7.0) * exp(-mod(uTime * 3.5, 3.14159)) * 0.18;
+                    morphed *= (1.0 + beat * uWeights[1]);
+                }
+                // Butterfly wing flutter
+                if (uWeights[2] > 0.01) {
+                    float flap = sin(uTime * 10.0 + aSeed * 2.0) * 0.45 * uWeights[2];
+                    morphed.z += abs(morphed.x) * flap;
+                    morphed.y += sin(uTime * 4.0) * 1.5 * uWeights[2];
+                }
+                // DNA axial rotation
+                if (uWeights[4] > 0.01) {
+                    float angle = uTime * 1.6 * uWeights[4];
+                    float ca = cos(angle); float sa = sin(angle);
+                    morphed.xz = mat2(ca, -sa, sa, ca) * morphed.xz;
+                }
+                // Black hole accretion disk vortex spin
+                if (uWeights[5] > 0.01) {
+                    float r = length(morphed.xz);
+                    float spin = (25.0 / (r + 2.5)) * uTime * 0.35 * uWeights[5];
+                    float cs = cos(spin); float ss = sin(spin);
+                    morphed.xz = mat2(cs, -ss, ss, cs) * morphed.xz;
+                }
+
+                // Breathing turbulence
+                morphed += vec3(
+                    sin(uTime * 1.8 + morphed.y * 0.1),
+                    cos(uTime * 1.5 + morphed.x * 0.1),
+                    sin(uTime * 2.1 + morphed.z * 0.1)
+                ) * 0.35;
+
+                // 3D orientation & spatial hand coordinates
+                vec3 finalWorldPos = (uHandRot * (morphed * uScale)) + uHandPos;
+
+                vec4 mvPosition = modelViewMatrix * vec4(finalWorldPos, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+
+                // Size attenuation with camera depth
+                float pSize = (220.0 / -mvPosition.z) * (0.65 + 0.45 * fract(aSeed * 437.0));
+                gl_PointSize = clamp(pSize, 1.5, 45.0);
+
+                // Dual-spectrum color gradient
+                float normDist = clamp(length(morphed) / 26.0, 0.0, 1.0);
+                vec3 col = mix(uColorA, uColorB, normDist + sin(aSeed * 6.28 + uTime) * 0.15);
+                col += vec3(0.2, 0.25, 0.3) * (1.0 - normDist); // Specular core
+
+                vColor = col;
+                vAlpha = clamp(1.15 - normDist * 0.35, 0.45, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec3 vColor;
+            varying float vAlpha;
+
+            void main() {
+                // Soft radial photonic discs with anti-aliasing
+                vec2 p = gl_PointCoord * 2.0 - 1.0;
+                float r2 = dot(p, p);
+                if (r2 > 1.0) discard;
+
+                float intensity = exp(-r2 * 3.2);
+                float glow = pow(1.0 - sqrt(r2), 1.6);
+                vec3 finalRGB = vColor * (intensity * 2.2 + glow * 0.85);
+
+                gl_FragColor = vec4(finalRGB, glow * vAlpha);
+            }
+        `,
+        uniforms: {
+            uWeights: { value: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
+            uTime: { value: 0.0 },
+            uHandPos: { value: new THREE.Vector3(0, 0, 0) },
+            uHandRot: { value: new THREE.Matrix3() },
+            uScale: { value: 1.0 },
+            uColorA: { value: colorThemes[0].a.clone() },
+            uColorB: { value: colorThemes[0].b.clone() }
+        },
         transparent: true,
-        opacity: 0.8
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
     });
 
-    const particles = new THREE.Points(geometry, material);
-    scene.add(particles);
+    const particleSystem = new THREE.Points(geometry, particleMaterial);
+    scene.add(particleSystem);
 
+    // -------------------------------------------------------------
+    // 5. Intelligent Motion & Gesture State Machine
+    // -------------------------------------------------------------
+    let currentShapeIndex = 0;
+    let targetShapeIndex = 0;
+    const currentWeights = [1, 0, 0, 0, 0, 0];
+    const targetWeights = [1, 0, 0, 0, 0, 0];
 
-    let handPos = new THREE.Vector3(0, 0, 0);
-    let isHandPresent = false;
-    let gestureMode = 'cloud'; 
+    const currentHandPos = new THREE.Vector3(0, 0, 0);
+    const targetHandPos = new THREE.Vector3(0, 0, 0);
+    const currentHandRot = new THREE.Matrix3();
+    const targetHandRot = new THREE.Matrix3();
+    let currentScale = 1.0;
+    let targetScale = 1.0;
 
-    const videoElement = document.getElementsByClassName('input_video')[0];
-    const loadingText = document.getElementById('loading');
+    const gestureNames = ["Nebula", "Heart", "Butterfly", "Hyper Star", "DNA Helix", "Black Hole"];
+    const gestureFreqs = [440, 523.25, 587.33, 659.25, 783.99, 880];
 
-    function onResults(results) {
-        loadingText.style.display = 'none';
+    function setGestureMode(idx) {
+        if (idx === targetShapeIndex) return;
+        targetShapeIndex = idx;
+        for (let i = 0; i < 6; i++) targetWeights[i] = (i === idx) ? 1.0 : 0.0;
+        playGestureTone(gestureFreqs[idx]);
+
+        document.querySelectorAll('.pill').forEach((pill, i) => {
+            pill.classList.toggle('active', i === idx);
+        });
+        document.getElementById('tel-gesture').textContent = gestureNames[idx];
+    }
+
+    // Interactive UI HUD Pill clicks
+    document.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+            setGestureMode(parseInt(e.target.dataset.index, 10));
+        });
+    });
+
+    // Keyboard Hotkeys [1 - 6]
+    window.addEventListener('keydown', (e) => {
+        const keyVal = parseInt(e.key, 10);
+        if (keyVal >= 1 && keyVal <= 6) setGestureMode(keyVal - 1);
+    });
+
+    // -------------------------------------------------------------
+    // 6. MediaPipe Computer Vision & 3D Spatial Calculation
+    // -------------------------------------------------------------
+    const videoElement = document.querySelector('.input_video');
+    const loadingElem = document.getElementById('loading');
+    const videoContainer = document.getElementById('video-container');
+    const telTrack = document.getElementById('tel-track');
+
+    function distance(p1, p2) {
+        return Math.hypot(p1.x - p2.x, p1.y - p2.y, (p1.z || 0) - (p2.z || 0));
+    }
+
+    function onHandResults(results) {
+        if (loadingElem.style.display !== 'none') loadingElem.style.display = 'none';
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            isHandPresent = true;
+            videoContainer.classList.add('tracking');
+            telTrack.textContent = 'Active (3D)';
+            telTrack.style.color = '#00ff88';
+
             const lm = results.multiHandLandmarks[0];
             const wrist = lm[0];
-            
-           
-            const x = (0.5 - wrist.x) * 60; 
-            const y = (0.5 - wrist.y) * 40;
-            const z = 0; 
-            handPos.lerp(new THREE.Vector3(x, y, z), 0.1);
+            const indexMCP = lm[5];
+            const middleMCP = lm[9];
+            const pinkyMCP = lm[17];
 
-           
-            const thumbTip = lm[4];
-            const indexTip = lm[8]; const indexBase = lm[5];
-            const middleTip = lm[12]; const middleBase = lm[9];
-            const ringTip = lm[16]; const ringBase = lm[13];
-            const pinkyTip = lm[20]; const pinkyBase = lm[17];
+            // 1. Precise 3D Position & Depth Estimation
+            const palmSize = distance(wrist, middleMCP);
+            const targetZ = (0.24 / Math.max(palmSize, 0.08) - 1.0) * 22.0; // Distance based Z-Depth
+            const targetX = (0.5 - wrist.x) * 55.0;
+            const targetY = (0.5 - wrist.y) * 38.0;
+            targetHandPos.set(targetX, targetY, THREE.MathUtils.clamp(targetZ, -25, 25));
 
-           
-            const isIndexUp = indexTip.y < indexBase.y;
-            const isMiddleUp = middleTip.y < middleBase.y;
-            const isRingUp = ringTip.y < ringBase.y;
-            const isPinkyUp = pinkyTip.y < pinkyBase.y;
+            // 2. 3D Hand Orientation (Normal vector & forward axis)
+            const vForward = new THREE.Vector3(middleMCP.x - wrist.x, middleMCP.y - wrist.y, middleMCP.z - wrist.z).normalize();
+            const vAcross = new THREE.Vector3(pinkyMCP.x - indexMCP.x, pinkyMCP.y - indexMCP.y, pinkyMCP.z - indexMCP.z).normalize();
+            const vNormal = new THREE.Vector3().crossVectors(vForward, vAcross).normalize();
+            const vRight = new THREE.Vector3().crossVectors(vNormal, vForward).normalize();
 
-            
-            const pinchDist = Math.sqrt(Math.pow(thumbTip.x - indexTip.x, 2) + Math.pow(thumbTip.y - indexTip.y, 2));
-            const isPinch = pinchDist < 0.05;
+            // Construct 3D rotation matrix
+            targetHandRot.set(
+                vRight.x, vForward.x, vNormal.x,
+                vRight.y, vForward.y, vNormal.y,
+                vRight.z, vForward.z, vNormal.z
+            );
 
-            
-            const isFist = !isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp;
+            // 3. Invariant Finger Extension Ratios
+            const isFingerExtended = (tipIdx, mcpIdx) => distance(lm[tipIdx], wrist) > distance(lm[mcpIdx], wrist) * 1.35;
+            const thumbUp  = distance(lm[4], pinkyMCP) > distance(lm[2], pinkyMCP) * 1.35;
+            const indexUp  = isFingerExtended(8, 5);
+            const middleUp = isFingerExtended(12, 9);
+            const ringUp   = isFingerExtended(16, 13);
+            const pinkyUp  = isFingerExtended(20, 17);
 
-            
-            const isPeace = isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp;
+            // Dynamic Pinch Calculation
+            const pinchDist = distance(lm[4], lm[8]);
+            const isPinch = pinchDist < 0.075;
 
-            
-            const isPoint = isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp;
-
-
-            
+            // Gesture Classification Logic
             if (isPinch) {
-                gestureMode = 'heart';
-            } else if (isFist) { 
-                gestureMode = 'butterfly'; 
-            } else if (isPeace) {
-                gestureMode = 'star';
-            } else if (isPoint) {
-                gestureMode = 'helix';
-            } else {
-                gestureMode = 'cloud';
+                setGestureMode(1); // Heart
+                targetScale = THREE.MathUtils.mapLinear(pinchDist, 0.02, 0.075, 0.7, 1.2);
+            } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
+                setGestureMode(2); // Fist: Butterfly
+                targetScale = 0.9;
+            } else if (indexUp && pinkyUp && !middleUp && !ringUp) {
+                setGestureMode(5); // Horns / Rock: Black Hole
+                targetScale = 1.25;
+            } else if (indexUp && middleUp && !ringUp && !pinkyUp) {
+                setGestureMode(3); // Peace: Star
+                targetScale = 1.1;
+            } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+                setGestureMode(4); // Point: DNA Helix
+                targetScale = 1.0;
+            } else if (indexUp && middleUp && ringUp && pinkyUp) {
+                setGestureMode(0); // Open: Nebula
+                targetScale = 1.15;
             }
-
         } else {
-            isHandPresent = false;
-            gestureMode = 'cloud';
+            videoContainer.classList.remove('tracking');
+            telTrack.textContent = 'Standby (Mouse)';
+            telTrack.style.color = '#8fa0b5';
+            targetHandPos.set(0, 0, 0);
+            targetHandRot.identity();
+            targetScale = 1.0;
         }
     }
 
-    const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
-    hands.setOptions({maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
-    hands.onResults(onResults);
+    const hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+    hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.55,
+        minTrackingConfidence: 0.55
+    });
+    hands.onResults(onHandResults);
 
     const cameraUtils = new Camera(videoElement, {
-        onFrame: async () => { await hands.send({image: videoElement}); },
+        onFrame: async () => { await hands.send({ image: videoElement }); },
         width: 640, height: 480
     });
-    cameraUtils.start();
+    cameraUtils.start().catch(() => {
+        loadingElem.style.display = 'none';
+        telTrack.textContent = 'Camera Off (Use Hotkeys 1-6)';
+    });
 
-    
+    // Mouse Fallback Orbit Interaction
+    let mouseInteracting = false;
+    window.addEventListener('pointermove', (e) => {
+        if (e.buttons === 1) {
+            mouseInteracting = true;
+            targetHandPos.x = (e.clientX / window.innerWidth - 0.5) * 50;
+            targetHandPos.y = -(e.clientY / window.innerHeight - 0.5) * 35;
+        }
+    });
+    window.addEventListener('pointerup', () => { mouseInteracting = false; });
+
+    // -------------------------------------------------------------
+    // 7. Render Loop & Smooth Physical Interpolation
+    // -------------------------------------------------------------
+    const clock = new THREE.Clock();
+    let frameCount = 0;
+    let lastFpsUpdate = 0;
+    const telFps = document.getElementById('tel-fps');
+
     function animate() {
         requestAnimationFrame(animate);
 
-        const posAttribute = particles.geometry.attributes.position;
-        const colorAttribute = particles.geometry.attributes.color;
-        
-        particles.rotation.y += 0.005; 
+        const elapsedTime = clock.getElapsedTime();
+        const delta = clock.getDelta();
 
-        for (let i = 0; i < particleCount; i++) {
-            const ix = i * 3;
-            const iy = i * 3 + 1;
-            const iz = i * 3 + 2;
-
-            let targetX, targetY, targetZ;
-            let targetR, targetG, targetB;
-            let speed = 0.08;
-
-            
-            if (gestureMode === 'heart' && isHandPresent) {
-                targetX = heartPositions[ix] + handPos.x;
-                targetY = heartPositions[iy] + handPos.y;
-                targetZ = heartPositions[iz] + handPos.z;
-                targetR = colRed.r; targetG = colRed.g; targetB = colRed.b;
-            } 
-            
-            else if (gestureMode === 'butterfly' && isHandPresent) {
-                targetX = butterflyPositions[ix] + handPos.x;
-                targetY = butterflyPositions[iy] + handPos.y;
-                targetZ = butterflyPositions[iz] + handPos.z;
-                targetR = colPurple.r; targetG = (butterflyPositions[iy]>0)?0.8:0; targetB = colPurple.b;
-            }
-            
-            else if (gestureMode === 'star' && isHandPresent) {
-                targetX = starPositions[ix] + handPos.x;
-                targetY = starPositions[iy] + handPos.y;
-                targetZ = starPositions[iz] + handPos.z;
-                targetR = colGold.r; targetG = colGold.g; targetB = colGold.b;
-            }
-            
-            else if (gestureMode === 'helix' && isHandPresent) {
-                targetX = helixPositions[ix] + handPos.x;
-                targetY = helixPositions[iy] + handPos.y;
-                targetZ = helixPositions[iz] + handPos.z;
-                targetR = colGreen.r; targetG = colGreen.g; targetB = colGreen.b;
-            }
-            
-            else {
-                if (isHandPresent) {
-                    targetX = initialPositions[ix] + handPos.x;
-                    targetY = initialPositions[iy] + handPos.y;
-                    targetZ = initialPositions[iz] + handPos.z;
-                } else {
-                    targetX = initialPositions[ix];
-                    targetY = initialPositions[iy];
-                    targetZ = initialPositions[iz];
-                }
-                targetR = colBlue.r; targetG = colBlue.g; targetB = colBlue.b;
-                speed = 0.03;
-            }
-
-            
-            posAttribute.array[ix] += (targetX - posAttribute.array[ix]) * speed;
-            posAttribute.array[iy] += (targetY - posAttribute.array[iy]) * speed;
-            posAttribute.array[iz] += (targetZ - posAttribute.array[iz]) * speed;
-
-            
-            colorAttribute.array[ix] += (targetR - colorAttribute.array[ix]) * 0.05;
-            colorAttribute.array[iy] += (targetG - colorAttribute.array[iy]) * 0.05;
-            colorAttribute.array[iz] += (targetB - colorAttribute.array[iz]) * 0.05;
+        // FPS Counter
+        frameCount++;
+        if (elapsedTime - lastFpsUpdate > 0.5) {
+            telFps.textContent = Math.round((frameCount / (elapsedTime - lastFpsUpdate)));
+            frameCount = 0;
+            lastFpsUpdate = elapsedTime;
         }
 
-        posAttribute.needsUpdate = true;
-        colorAttribute.needsUpdate = true;
-        renderer.render(scene, camera);
+        // Interpolate Shader Weights (GPU Shape Morphing)
+        for (let i = 0; i < 6; i++) {
+            currentWeights[i] += (targetWeights[i] - currentWeights[i]) * 0.08;
+        }
+        particleMaterial.uniforms.uWeights.value = currentWeights;
+        particleMaterial.uniforms.uTime.value = elapsedTime;
+
+        // Smooth Spatial Translation & Rotation Lerp
+        currentHandPos.lerp(targetHandPos, 0.09);
+        currentScale += (targetScale - currentScale) * 0.08;
+        particleMaterial.uniforms.uHandPos.value.copy(currentHandPos);
+        particleMaterial.uniforms.uScale.value = currentScale;
+
+        // Smooth Matrix3 Slerp Approximation
+        const curE = currentHandRot.elements;
+        const tgtE = targetHandRot.elements;
+        for (let k = 0; k < 9; k++) {
+            curE[k] += (tgtE[k] - curE[k]) * 0.08;
+        }
+        particleMaterial.uniforms.uHandRot.value.copy(currentHandRot);
+
+        // Interpolate Color Palettes
+        const activeTheme = colorThemes[targetShapeIndex];
+        particleMaterial.uniforms.uColorA.value.lerp(activeTheme.a, 0.06);
+        particleMaterial.uniforms.uColorB.value.lerp(activeTheme.b, 0.06);
+
+        // Gentle Ambient Scene Spin
+        particleSystem.rotation.y = elapsedTime * 0.05;
+
+        // Post-Processing Render Pass
+        composer.render();
     }
 
+    // Responsive Canvas Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
     });
 
     animate();
 </script>
 </body>
-
 </html>
